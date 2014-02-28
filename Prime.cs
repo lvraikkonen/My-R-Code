@@ -11,8 +11,13 @@ namespace EulerProject
         static void Main(string[] args)
         {
             //Euler7();
-            Euler10();
+            //Euler10();
             //Console.WriteLine("5 is prime? {0}", isPrime(10));
+
+            List<int> lst;
+            lst = primeFactors(600851475143);//600851475143);
+            Int64 last = lst.Last();
+            Console.WriteLine("The largest prime factor of the number 600851475143 is {0}", last);
         }
 
         static int Euler7()
@@ -55,7 +60,7 @@ namespace EulerProject
             return sum;
         }
 
-        static bool isPrime(int x)
+        static bool isPrime(Int64 x)
         {
             bool isPrime = false;
             if (x == 2) isPrime = true;
@@ -71,6 +76,57 @@ namespace EulerProject
             }
 
             return isPrime;
+        }
+
+        //static List<int> primeFactors(Int64 x)
+        //{
+        //    List<int> factors = new List<int>();
+
+        //    for (int i = 2; i <= x / 2; i++)
+        //    {
+        //        if (isPrime(x))
+        //            break;
+        //        if(x%i==0)//is factor
+        //        {
+        //            if (isPrime(i))
+        //                factors.Add(i);
+        //        }
+        //    }
+
+        //    return factors;
+        //}
+
+        //improved one
+        static List<int> primeFactors(Int64 x)
+        {
+            List<int> factors = new List<int>();
+            if (x == 2|| x == 3)
+            {
+                factors.Add(int.Parse(x.ToString()));
+                return factors;
+            }
+
+            for (int i = 2; i <= Math.Sqrt(x); i=i+1)
+            {
+                
+                if (isPrime(x))//prime number has no factors
+                {
+                    factors.Add(int.Parse(x.ToString()));
+                    break;
+                }
+                if (x % i == 0)//is factor
+                {
+                    x = x / i;
+                    if (isPrime(i))
+                        factors.Add(i);
+                    if (isPrime(x))
+                    {
+                        factors.Add(int.Parse( x.ToString()));
+                    }
+                }
+            }
+
+            return factors;
         }
     }
 }
