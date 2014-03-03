@@ -10,27 +10,43 @@ namespace EulerProject
     {
         static void Main(string[] args)
         {
-            //Euler7();
-            //Euler10();
-            //Console.WriteLine("5 is prime? {0}", isPrime(10));
+            Console.WriteLine("Result of Euler 2 is {0}", Euler2());
+            Console.WriteLine("Result of Euler 3 is {0}", Euler3());
+            Console.WriteLine("Result of Euler 7 is {0}", Euler7());
+            Console.WriteLine("Result of Euler 10 is {0}", Euler10());
+            Console.WriteLine("Result of Euler 20 is {0}", Euler20());
+        }
 
-            //List<int> lst;
-            //lst = primeFactors(600851475143);//600851475143);
-            //Int64 last = lst.Last();
-            //Console.WriteLine("The largest prime factor of the number 600851475143 is {0}", last);
+        static long Euler2()
+        {
+            int i = 1;
+            int temp;
+            int[] fab = new int[2];
+            fab[0] = 1; fab[1] = 2;
+            long sum = 2;
 
-            //Console.WriteLine("50! equals {0}", factorial(50));
-            //int[] bigFact = new int[40001];
-            //bigFact = bigFactorial(10);
-            //string all = factorial(100).ToString();
-
-            List<int> result = bigFactorial(100);
-            int sum = 0;
-            foreach (int i in result)
+            while(fab[i]<=4e6)
             {
-                sum += i;
+                temp = fab[i - 1] + fab[i];
+                fab[i - 1] = fab[i];
+                fab[i] = temp;
+                if (fab[i] % 2 == 0)
+                    sum += fab[i];
             }
-            Console.WriteLine("result sum is {0}", sum);
+            return sum;
+        }
+
+        static long Euler3()
+        {
+            long result = 0;
+
+            List<int> lst;
+            lst = primeFactors(600851475143);
+            Int64 last = lst.Last();
+            //Console.WriteLine("The largest prime factor of the number 600851475143 is {0}", last);
+            result = last;
+
+            return result;
         }
 
         static int Euler7()
@@ -50,25 +66,39 @@ namespace EulerProject
             }
 
 
-            Console.WriteLine("The 10001th prime is {0}", primes.Last());
+            //Console.WriteLine("The 10001th prime is {0}", primes.Last());
 
             return primes.Last();
         }
 
-        static Int64 Euler10()
+        static long Euler10()
         {
-            Int64 sum = 2;
-            Int32 i = 3;
-            while (i <= 2000000)
+            long sum = 0;
+
+            List<int> primeList = new List<int>();
+            primeList.Add(2);
+            for (int i = 3; i <= 2e6; i=i+2)
             {
                 if (isPrime(i))
-                {
-                    sum += i;
-                }
-                i += 2;
+                    primeList.Add(i);
             }
+            foreach(int num in primeList)
+            {
+                sum += num;
+            }
+            //Console.WriteLine("The sum of the primes below 2 million is {0}", sum);
+            return sum;
+        }
 
-            Console.WriteLine("The sum of the primes below 2 million is {0}", sum);
+        static int Euler20()
+        {
+            List<int> result = bigFactorial(100);
+            int sum = 0;
+            foreach (int i in result)
+            {
+                sum += i;
+            }
+            //Console.WriteLine("result sum is {0}", sum);
 
             return sum;
         }
@@ -111,6 +141,7 @@ namespace EulerProject
         //}
 
         //improved one
+
         static List<int> primeFactors(Int64 x)
         {
             List<int> factors = new List<int>();
@@ -122,7 +153,6 @@ namespace EulerProject
 
             for (int i = 2; i <= Math.Sqrt(x); i = i + 1)
             {
-
                 if (isPrime(x))//prime number has no factors
                 {
                     factors.Add(int.Parse(x.ToString()));
