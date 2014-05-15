@@ -1,8 +1,8 @@
 pollutantmean <- function(directory, pollutant, id = 1:332) {
   ## the location of the CSV files
-  #path <- paste(c(getwd(),'/',directory),collapse="")
+  # path <- paste(c(getwd(),'/',directory),collapse="")
   path <- paste(c('~/',directory),collapse="")
-  #print(path)
+  # print(path)
   
   setwd(path)
   
@@ -13,7 +13,7 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
     if(!exists("dataset")){
       
       dataset <- read.csv(fileList[i],header=TRUE)
-      print(fileList[i])
+      # print(fileList[i])
       
     }else{# if the merged dataset does exist, append to it
       
@@ -23,7 +23,7 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
     
     }
   }
-  #return(dataset)
+  # return(dataset)
   
   ## 'pollutant' is a character vector of length 1 indicating
   ## the name of the pollutant for which we will calculate the
@@ -41,7 +41,7 @@ complete <- function(directory, id = 1:332) {
   ## 'directory' is a character vector of length 1 indicating
   ## the location of the CSV files
   path <- paste(c('~/',directory),collapse="")
-  #print(path)
+  # print(path)
   
   setwd(path)
   
@@ -84,6 +84,7 @@ corr <- function(directory, threshold = 0) {
     dataset <- read.csv(file,header=TRUE)
     complete <- dataset[complete.cases(dataset),]
     if(nrow(complete) > threshold){
+      # calculate cor for dataset meet requirement
       sulfate <- complete$sulfate
       nitrate <- complete$nitrate
       if(!exists('result'))
