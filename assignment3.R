@@ -133,19 +133,19 @@ rankhospital <- function(state, outcome, num = "best") {
     colNum <- 23
   }
   else{
-    stop("Invalid State Name!")
+    stop("Invalid Outcome Name!")
   }
+  
   
   # get the state data
   data <- hospDF[hospDF$State == state, c(2,7,colNum)]
   data[,3] <- suppressWarnings(as.numeric(data[,3]))
   
   ## Return hospital name in that state with the given rank
+  rankNum <- 1
   if(num == "best"){
-    rankNum <- 1
     desc <- FALSE #Lower better
-  }else if(num == "worse"){
-    rankNum <- 1
+  }else if(num == "worst"){
     desc  <- TRUE
   }else{
     rankNum <- num
@@ -156,11 +156,11 @@ rankhospital <- function(state, outcome, num = "best") {
   
   result <- data[order(
     as.numeric(data[,3]),
-    data[,1],
+    #data[,1],
     na.last=NA,
     decreasing = desc),]
   
-  
   #return hospital name
+  
   return(result[rankNum,]$Hospital.Name)
 }
