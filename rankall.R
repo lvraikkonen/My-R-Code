@@ -50,6 +50,7 @@ rankall <- function(outcome, num = "best"){
     decreasing = desc),]
   
   #return hospital name
+  #maybe split()
   
   #return(result[rankNum,]$Hospital.Name)
 }
