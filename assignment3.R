@@ -12,155 +12,160 @@ outcome[,11] <- as.numeric(outcome[,11])
 hist(outcome[,11])
 
 
-## Part 2 --  Solution 1
+## Part 2
 ## Finding the best hospital in a state
-best <- function(state,outcome){
-  ## Read outcome data
-  hospDF <- read.csv("outcome-of-care-measures.csv",
-                     colClasses = 'character',
-                     stringsAsFactors= FALSE)
-  ## col  7: State
-  ## col 11: Heart Attack
-  ## col 17: Heart Failure
-  ## col 23: Pneumonia
+best <- function(state, outcome) {
+  ## Read outcome data: COLS: Hospital.Name, State, HeartAttack, HearFailure, Pneumonia
+  data <- read.csv("outcome-of-care-measures.csv",
+                   colClasses = "character")[,c(2,7,11,17,23)]
   
-  ## Check that state and outcome are valid
-  if(!(state %in% hospDF[,7])) stop("Invalid State Name!")
-  if(!(outcome %in% c('heart attack','heart failure','pneumonia'))) stop("Invalid Outcome Name!")
-  
-  States <- hospDF[,7]
-  Hosptial.Name <- as.character(hospDF[,2])
-  Heart.Attack <- suppressWarnings(as.numeric(hospDF[,11]))
-  Heart.Failure <- suppressWarnings(as.numeric(hospDF[,17]))
-  Pneumonia <- suppressWarnings(as.numeric(hospDF[,23]))
-  
-  data <- data.frame(States,Hosptial.Name,Heart.Attack,Heart.Failure,Pneumonia,
-                     stringsAsFactors=FALSE)
-  
-  stateData <- data[data$States == state,]
-  
-  ## Return hospital name in that state with lowest 30-day death
-  if(outcome == 'heart attack'){
-    minRate <- min(stateData[,3],na.rm=TRUE)
-    result <- stateData[stateData[,3] == minRate,]
-  }
-  if(outcome == 'heart failure'){
-    minRate <- min(stateData[,4],na.rm=TRUE)
-    result <- stateData[stateData[,4] == minRate,]
-  }
-  if(outcome == 'pneumonia'){
-    minRate <- min(stateData[,5],na.rm=TRUE)
-    result <- stateData[stateData[,5] == minRate,]
-  }
-  bestHospital <- result[complete.cases(result),]$Hosptial.Name
-  
-  ## rate
-  return(bestHospital)
-}
-
-
-## Part 2 --  Solution 2
-## Finding the best hospital in a state
-best <- function(state,outcome){
-  ## Read outcome data
-  hospDF <- read.csv("outcome-of-care-measures.csv",
-                     colClasses = 'character',
-                     stringsAsFactors= FALSE)
-  ## col  7: State
-  ## col 11: Heart Attack
-  ## col 17: Heart Failure
-  ## col 23: Pneumonia
-  
-  # Check that state is valid
-  if(!(state %in% hospDF$State)){
-    stop("Invalid State Name!")
+  ## check state and outcome are valid
+  if(! ( state %in% factor(data$State) ) ) {
+    stop("invalid state")
   }
   
-  # Check that outcome is valid
-  if(outcome == 'heart attack'){
-    colNum <- 11
-  }
-  else if(outcome == 'heart failure'){
-    colNum <- 17
-  }
-  else if(outcome == 'pneumonia'){
-    colNum <- 23
-  }
-  else{
-    stop("Invalid Outcome Name!")
+  if(! (outcome == "heart attack" || 
+        outcome == "heart failure" || 
+        outcome == "pneumonia") ) {
+    stop("invalid outcome")
   }
   
-  # get the state data
-  data <- hospDF[hospDF$State == state, c(2,7,colNum)]
-  data[,3] <- suppressWarnings(as.numeric(data[,3]))
+  ## get the state data
+  data <- data[data$State == state,c(1,3,4,5)]
   
-  ## Return hospital name in that state with lowest 30-day death
-  minRate <- min(data[,3],na.rm=TRUE)
-  result <- data[data[,3]==minRate,]
-  result <- result[complete.cases(result),]
+  if(outcome == "heart attack") {
+    data <- data[,c(1,2)]
+  } else if(outcome == "heart failure") {
+    data <- data[,c(1,3)]
+  } else if(outcome == "pneumonia") {
+    data <- data[,c(1,4)]
+  }
   
-  ## rate
-  return(result$Hospital.Name)
+  ## rename kind of rate
+  names(data)[2] <- "Death"
+  data[,2] <- suppressWarnings(as.numeric(data[,2]))
+  
+  ## remove NA
+  data <- data[!is.na(data[,2]),]
+  
+  ## order
+  data <- data[order(data$Death,data$Hospital.Name),]
+  
+  return(data$Hospital.Name[1])
 }
 
 
 ## Part 3
-rankhospital <- function(state, outcome, num = "best") {
-  ## Read outcome data
-  hospDF <- read.csv("outcome-of-care-measures.csv",
-                     colClasses = 'character',
-                     stringsAsFactors= FALSE)
+## Rank hospital by outcome in a state
+rankhospital <- function(state,outcome, num = "best"){
+  ## read data
+  ## COLS: Hospital.Name, State, HeartAttack, HearFailure, Pneumonia
+  data <- read.csv("outcome-of-care-measures.csv",
+                   colClasses = "character")[,c(2,7,11,17,23)]
   
-  ## Check that state and outcome are valid
-  ## col  7: State
-  ## col 11: Heart Attack
-  ## col 17: Heart Failure
-  ## col 23: Pneumonia
-  
-  # Check that state is valid
-  if(!(state %in% hospDF$State)){
-    stop("Invalid State Name!")
+  ## check state and outcome are valid
+  if(! ( state %in% factor(data$State) ) ) {
+    stop("invalid state")
   }
   
-  # Check that outcome is valid
-  if(outcome == 'heart attack'){
-    colNum <- 11
+  if(! (outcome == "heart attack" || 
+          outcome == "heart failure" || 
+          outcome == "pneumonia") ) {
+    stop("invalid outcome")
   }
-  else if(outcome == 'heart failure'){
-    colNum <- 17
+  
+  ## get the state data
+  data <- data[data$State == state,c(1,3,4,5)]
+  
+  if(outcome == "heart attack") {
+    data <- data[,c(1,2)]
+  } else if(outcome == "heart failure") {
+    data <- data[,c(1,3)]
+  } else if(outcome == "pneumonia") {
+    data <- data[,c(1,4)]
   }
-  else if(outcome == 'pneumonia'){
-    colNum <- 23
+  
+  names(data)[2] <- "Death"
+  data[,2] <- suppressWarnings(as.numeric(data[,2]))
+  
+  ## remove NAs
+  data <- data[!is.na(data[,2]),]
+  
+  ## order
+  data <- data[order(data$Death,data$Hospital.Name),]
+  
+  ## Return hospital name with given rank
+  if(class(num) == "character"){
+    if(num == "best"){
+      return(data$Hospital.Name[1])
+    }
+    else if(num == "worst"){
+      return(data$Hospital.Name[nrow(data)])
+    }
   }
   else{
-    stop("Invalid Outcome Name!")
-  }
-  
-  
-  # get the state data
-  data <- hospDF[hospDF$State == state, c(2,7,colNum)]
-  data[,3] <- suppressWarnings(as.numeric(data[,3]))
-  
-  ## Return hospital name in that state with the given rank
-  rankNum <- 1
-  if(num == "best"){
-    desc <- FALSE #Lower better
-  }else if(num == "worst"){
-    desc  <- TRUE
-  }else{
-    rankNum <- num
-    desc <- FALSE
     if(num > nrow(data))
       return(NA)
+    else{
+      return(data$Hospital.Name[num])
+    }
+  }
+}
+
+
+
+## Part 4
+## Rank hospitals in all state
+rankall <- function(outcome, num = "best"){
+  ## read data
+  ## COLS: Hospital.Name, State, HeartAttack, HearFailure, Pneumonia
+  data <- read.csv("outcome-of-care-measures.csv",
+                   colClasses = "character")[,c(2,7,11,17,23)]
+  
+  ## check outcome is valid
+  if(! (outcome == "heart attack" || 
+          outcome == "heart failure" || 
+          outcome == "pneumonia") ) {
+    stop("invalid outcome")
   }
   
-  result <- data[order(
-    as.numeric(data[,3]),
-    #data[,1],
-    na.last=NA,
-    decreasing = desc),]
+  if(outcome == "heart attack") {
+    data <- data[,c(1,2,3)]
+  } else if(outcome == "heart failure") {
+    data <- data[,c(1,2,4)]
+  } else if(outcome == "pneumonia") {
+    data <- data[,c(1,2,5)]
+  }
   
-  #return hospital name
+  names(data)[3] <- "Death"
+  data[,3] <- suppressWarnings(as.numeric(data[,3]))
   
-  return(result[rankNum,]$Hospital.Name)
+  ## remove NAs
+  data <- data[!is.na(data[,3]),]
+  
+  ## split data into some data frame
+  splited = split(data, data$State)
+  
+  ## use lapply to sort each data frame in list
+  rankedHospital <- lapply(splited,function(x,num){
+    x <- x[order(x$Death,x$Hospital.Name),]
+    ## return hospital list
+    if(class(num) == "character"){
+      if(num == "best"){
+        return(x$Hospital.Name[1])
+      }
+      else if(num == "worst"){
+        return(x$Hospital.Name[nrow(x)])
+      }
+    }
+    else{
+      if(num > nrow(x)) return(NA)
+      else return(x$Hospital.Name[num])
+    }
+  },num)
+  
+  #return(rankedHospital)
+  
+  return(data.frame(hospital = unlist(rankedHospital),
+                    state = names(rankedHospital)))
 }
