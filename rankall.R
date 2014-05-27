@@ -28,29 +28,39 @@ rankall <- function(outcome, num = "best"){
   # get all state data
   data <- hospDF[, c(2,7,colNum)]
   data[,3] <- suppressWarnings(as.numeric(data[,3]))
+  names(data)[3] <- "Death"
   
-  ## Return hospital name in that state with the given rank
-  rankNum <- 1
-  if(num == "best"){
-    desc <- FALSE #Lower better
-  }else if(num == "worst"){
-    desc  <- TRUE
-  }else{
-    rankNum <- num
-    desc <- FALSE
-    if(num > nrow(data))
-      return(NA)
-  }
+  # remove NA
+  data <- data[!is.na(data$Death),]
   
-  return(data)
-  result <- data[order(
-    as.numeric(data[,3]),
-    #data[,1],
-    na.last=NA,
-    decreasing = desc),]
+  # for each state list
+  splitData <- split(data,data$State)
   
-  #return hospital name
-  #maybe split()
+  ### sort by Death & Hospital.Name
+  rankedHospital <- lapply(splitData,function(x,num){
+    sortedList <- x[order(x$Death,x$Hospital.Name),]
+    
+    ## for each item in list select the hospital name
+    if(class(num) == "character") {
+      if(num == "best") {
+        return (sortedList$Hospital.Name[1])
+      }
+      else if(num == "worst") {
+        return (sortedList$Hospital.Name[nrow(sortedList)])
+      }
+    }
+    else {
+      if(num > nrow(sortedList))
+        return(NA)
+      else
+        return (sortedList$Hospital.Name[num])
+    }
+    
+  }## ... agrument for inner function
+  ,num)
   
-  #return(result[rankNum,]$Hospital.Name)
+  # return specified rank hospital name
+  return(data.frame(hospital = unlist(rankedHospital),
+                    state = names(rankedHospital),
+                    stringsAsFactors = FALSE))
 }
