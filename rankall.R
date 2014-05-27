@@ -25,8 +25,8 @@ rankall <- function(outcome, num = "best"){
   }
   
   
-  # get the state data
-  data <- hospDF[hospDF$State == state, c(2,7,colNum)]
+  # get all state data
+  data <- hospDF[, c(2,7,colNum)]
   data[,3] <- suppressWarnings(as.numeric(data[,3]))
   
   ## Return hospital name in that state with the given rank
@@ -42,6 +42,7 @@ rankall <- function(outcome, num = "best"){
       return(NA)
   }
   
+  return(data)
   result <- data[order(
     as.numeric(data[,3]),
     #data[,1],
@@ -50,5 +51,5 @@ rankall <- function(outcome, num = "best"){
   
   #return hospital name
   
-  return(result[rankNum,]$Hospital.Name)
+  #return(result[rankNum,]$Hospital.Name)
 }
