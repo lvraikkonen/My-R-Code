@@ -1,0 +1,42 @@
+## load related packages for OAuth API
+library(httr)
+library(httpuv)
+library(jsonlite)
+
+# 1. Find OAuth settings for github: http://developer.github.com/v3/oauth/
+oauth_endpoints("github")
+
+# 2. Register an application at https://github.com/settings/applications
+# Insert your values below - if secret is omitted, it will look it up in the
+# GITHUB_CONSUMER_SECRET environmental variable.  Use http://localhost:1410
+# as the callback url
+myapp <- oauth_app("GetInfoRepo", "9e21e6d4d35c52b41357", secret = "3abdd6c5846f265818e9be818408bc9e062735af")
+
+# 3. Get OAuth credentials
+github_token <- oauth2.0_token(oauth_endpoints("github"), myapp)
+
+# 4. Use API
+req <- GET("https://api.github.com/users/jtleek/repos", config(token = github_token))
+stop_for_status(req)
+output <- content(req)
+
+## datashareing is output[[5]]
+list(output[[5]]$name, output[[5]]$created_at)
+
+
+## Question 4
+connection <- url("http://biostat.jhsph.edu/~jleek/contact.html")
+htmlCode <- readLines(connection)
+close(connection)
+c(nchar(htmlCode[10]), nchar(htmlCode[20]), nchar(htmlCode[30]), nchar(htmlCode[100]))
+
+## Question 5
+url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fwksst8110.for"
+lines <- readLines(url, n = 10)
+w <- c(1, 9, 5, 4, 1, 3, 5, 4, 1, 3, 5, 4, 1, 3, 5, 4, 1, 3)
+colNames <- c("filler", "week", "filler", "sstNino12", "filler", "sstaNino12", 
+              "filler", "sstNino3", "filler", "sstaNino3", "filler", "sstNino34", "filler", 
+              "sstaNino34", "filler", "sstNino4", "filler", "sstaNino4")
+d <- read.fwf(url, w, header = FALSE, skip = 4, col.names = colNames)
+d <- d[, grep("^[^filler]", names(d))]
+sum(d[, 4])
