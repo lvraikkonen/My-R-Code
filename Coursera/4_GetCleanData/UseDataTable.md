@@ -1,13 +1,13 @@
 ## Try to Use data.table package
 ========================================================
 
-### Setup
+## Setup
 You must load the package `data.table` first
 ```r
 library(data.table)
 ```
 
-### Creation
+## Creation
 Like create `data.frame()`
 ```r
 DT <- data.table(x=c("a","a","a","b","b"),value=rnorm(5))
@@ -30,4 +30,4 @@ NAME NROW MB COLS       KEY
 Total: 2MB
 ```
 
-## Keys
+### Keys
