@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta http-equiv="x-ua-compatible" content="IE=9" >
 
-<title>Try to Use data.table package</title>
+<title>Basic Markdown</title>
 
 <style type="text/css">
 body, td {
@@ -174,45 +174,209 @@ hljs.initHighlightingOnLoad();
 </script>
 
 
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
 
 
 </head>
 
 <body>
-<h2>Try to Use data.table package</h2>
+<h1>Basic Markdown</h1>
 
-<h1></h1>
+<h1>一级标题</h1>
 
-<h3>Setup</h3>
+<h2>二级标题</h2>
 
-<p>You must load the package <code>data.table</code> first</p>
+<h3>三级标题</h3>
 
-<pre><code class="r">library(data.table)
+<h4>四级标题</h4>
+
+<h5>五级标题</h5>
+
+<h6>六级标题</h6>
+
+<h2>列表</h2>
+
+<ul>
+<li>列表1</li>
+<li>列表2</li>
+<li>列表3</li>
+</ul>
+
+<h2>有序文本</h2>
+
+<ol>
+<li>有序文本1</li>
+<li>有序文本2</li>
+<li>有序文本3</li>
+</ol>
+
+<pre><code class="r computing">x &lt;- 1+1 # a simple calculator
+set.seed(123)
+rnorm(5)  # boring random numbers
 </code></pre>
 
-<h3>Creation</h3>
-
-<p>Like create <code>data.frame()</code></p>
-
-<pre><code class="r">DT &lt;- data.table(x=c(&quot;a&quot;,&quot;a&quot;,&quot;a&quot;,&quot;b&quot;,&quot;b&quot;),value=rnorm(5))
+<pre><code class="r graphics">par(mar = c(4, 4, .1, .1))
+with(mtcars, {
+  plot(mpg~hp, pch=20, col=&#39;darkgray&#39;)
+  lines(lowess(hp, mpg))
+})
 </code></pre>
 
-<p>Convert data frame objects to data table object</p>
+<h1>A Minimal Example for Markdown</h1>
 
-<pre><code class="r">## convert
-CARS &lt;- data.table(cars)
+<p>This is a minimal example of using <strong>knitr</strong> to produce an <em>HTML</em> page from <em>Markdown</em>.</p>
+
+<h2>R code chunks</h2>
+
+<pre><code class="r setup"># set global chunk options: images will be 7x5 inches
+opts_chunk$set(fig.width=7, fig.height=5)
 </code></pre>
 
-<p>See a list of data.tables in memory</p>
+<p>Now we write some code chunks in this markdown file:</p>
 
-<pre><code class="r">tables()
+<pre><code class="r computing">x &lt;- 1+1 # a simple calculator
+set.seed(123)
+rnorm(5)  # boring random numbers
 </code></pre>
 
-<pre><code>NAME NROW MB COLS       KEY
-[1,] CARS   50 1  speed,dist    
-[2,] DT      6 1  x,value       
-Total: 2MB
+<p>We can also produce plots:</p>
+
+<pre><code class="r graphics">par(mar = c(4, 4, .1, .1))
+with(mtcars, {
+  plot(mpg~hp, pch=20, col=&#39;darkgray&#39;)
+  lines(lowess(hp, mpg))
+})
 </code></pre>
+
+<h2>Inline code</h2>
+
+<p>Inline R code is also supported, e.g. the value of <code>x</code> is <code>r x</code>, and 2 &times; &pi;
+= <code>r 2*pi</code>.</p>
+
+<h2>Math</h2>
+
+<p>LaTeX math as usual: \( f(\alpha, \beta) \propto x^{\alpha-1}(1-x)^{\beta-1} \).</p>
+
+<h2>Misc</h2>
+
+<p>You can indent code chunks so they can nest within other environments such as lists.</p>
+
+<ol>
+<li>the area of a circle with radius x
+<code>{r foo}
+pi * x^2
+</code></li>
+<li>OK, that is great</li>
+</ol>
+
+<p>To compile me, use</p>
+
+<pre><code class="r compile, eval=FALSE">library(knitr)
+knit(&#39;knitr-minimal.Rmd&#39;)
+</code></pre>
+
+<h2>Conclusion</h2>
+
+<p>Markdown is super easy to write. Go to <strong>knitr</strong> <a href="http://yihui.name/knitr">homepage</a> for details.</p>
+
+<p><a href="http://jianshu.io">超链接简书</a>
+<img src="http://ww4.sinaimg.cn/bmiddle/aa397b7fjw1dzplsgpdw5j.jpg" alt="图片"/></p>
+
+<h1>Project for Getting and Cleaning Data</h1>
+
+<p>Author: Benjamin Chan (<a href="https://github.com/benjamin-chan/GettingAndCleaningData">https://github.com/benjamin-chan/GettingAndCleaningData</a>)</p>
+
+<h2>Parameters for the project</h2>
+
+<blockquote>
+<p>The purpose of this project is to demonstrate your ability to collect, work with, and clean a data set. The goal is to prepare tidy data that can be used for later analysis. You will be graded by your peers on a series of yes/no questions related to the project. You will be required to submit: 1) a tidy data set as described below, 2) a link to a Github repository with your script for performing the analysis, and 3) a code book that describes the variables, the data, and any transformations or work that you performed to clean up the data called CodeBook.md. You should also include a README.md in the repo with your scripts. This repo explains how all of the scripts work and how they are connected.<br/>
+<a href="http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones">http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones</a> </p>
+
+<p>Here are the data for the project: </p>
+
+<p><a href="https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip">https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip</a> </p>
+
+<p>You should create one R script called run_analysis.R that does the following. </p>
+
+<ol>
+<li>Merges the training and the test sets to create one data set.</li>
+<li>Extracts only the measurements on the mean and standard deviation for each measurement.</li>
+<li>Uses descriptive activity names to name the activities in the data set.</li>
+<li>Appropriately labels the data set with descriptive activity names.</li>
+<li>Creates a second, independent tidy data set with the average of each variable for each activity and each subject. </li>
+</ol>
+
+<p>Good luck!</p>
+</blockquote>
+
+<h2>Steps to reproduce this project</h2>
+
+<ol>
+<li>Open the R script <code>run_analysis.r</code> using a text editor.</li>
+<li>Change the parameter of the <code>setwd</code> function call to the working directory/folder (i.e., the folder where these the R script file is saved).</li>
+<li>Run the R script <code>run_analysis.r</code>. It calls the R Markdown file, <code>run_analysis.Rmd</code>, which contains the bulk of the code.</li>
+</ol>
+
+<h2>Outputs produced</h2>
+
+<ul>
+<li>Tidy dataset file <code>DatasetHumanActivityRecognitionUsingSmartphones.txt</code> (tab-delimited text)</li>
+<li>Codebook file <code>codebook.md</code> (Markdown)</li>
+</ul>
+
+<h2>Test script</h2>
+
+<pre><code class="r">a &lt;- c(1,1,2,3,4,5,6,7,8,9)
+</code></pre>
+
+<p><code>asd</code></p>
+
+<h2>Preliminaries</h2>
+
+<p>Load packages.</p>
+
+<pre><code class="r">packages &lt;- c(&quot;data.table&quot;, &quot;reshape2&quot;)
+sapply(packages, require, character.only = TRUE, quietly = TRUE)
+</code></pre>
+
+<pre><code>## data.table   reshape2 
+##       TRUE       TRUE
+</code></pre>
+
+<p>Set path.</p>
+
+<pre><code class="r">path &lt;- getwd()
+path
+</code></pre>
+
+<pre><code>## [1] &quot;C:/Users/chanb/Documents/Repositories/Coursera/GettingAndCleaningData/Project&quot;
+</code></pre>
+
+<h2>Get the data</h2>
+
+<p>Download the file. Put it in the <code>Data</code> folder. <strong>This was already done on 2014-04-11; save time and don&#39;t evaluate again.</strong></p>
+
+<pre><code class="r">url &lt;- &quot;https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip&quot;
+f &lt;- &quot;Dataset.zip&quot;
+if (!file.exists(path)) {
+    dir.create(path)
+}
+download.file(url, file.path(path, f))
+</code></pre>
+
+<p>Unzip the file. <strong>This was already done on 2014-04-11; save time and don&#39;t evaluate again.</strong></p>
+
+<pre><code class="r">executable &lt;- file.path(&quot;C:&quot;, &quot;Program Files (x86)&quot;, &quot;7-Zip&quot;, &quot;7z.exe&quot;)
+parameters &lt;- &quot;x&quot;
+cmd &lt;- paste(paste0(&quot;\&quot;&quot;, executable, &quot;\&quot;&quot;), parameters, paste0(&quot;\&quot;&quot;, file.path(path, 
+    f), &quot;\&quot;&quot;))
+system(cmd)
+</code></pre>
+
+<p>The archive put the files in a folder named <code>UCI HAR Dataset</code>. Set this folder as the input path. List the files here.</p>
 
 </body>
 
