@@ -1,0 +1,48 @@
+Codebook
+========
+Codebook was generated on `r as.character(Sys.time())` during the same process that generated the dataset. See `run_analysis.md` or `run_analysis.html` for details on dataset creation.
+
+Dataset structure
+-----------------
+
+```{r}
+str(dtTidy)
+```
+
+List the key variables in the data table
+----------------------------------------
+
+```{r}
+key(dtTidy)
+```
+
+Show a few rows of the dataset
+------------------------------
+
+```{r}
+dtTidy
+```
+
+Summary of variables
+--------------------
+
+```{r}
+summary(dtTidy)
+```
+
+List all possible combinations of features
+------------------------------------------
+
+```{r}
+dtTidy[, .N, by=c(names(dtTidy)[grep("^feat", names(dtTidy))])]
+```
+
+Save to file
+------------
+
+Save data table objects to a tab-delimited text file called `DatasetHumanActivityRecognitionUsingSmartphones.txt`.
+
+```{r save}
+f <- file.path(path, "DatasetHumanActivityRecognitionUsingSmartphones.txt")
+write.table(dtTidy, f, quote=FALSE, sep="\t", row.names=FALSE)
+```
