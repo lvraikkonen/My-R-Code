@@ -6,7 +6,6 @@ download.data <- function () {
   zip.url <- 'https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip'
   zip.file <- 'dataset.zip'
   
-  
   download.file(zip.url, destfile = zip.file)
   unzip(zip.file)
 }
@@ -21,7 +20,6 @@ load.dataset <- function (set, features, labels) {
   file.label <- paste(prefix, 'y_', set, '.txt', sep = '')
   file.subject <- paste(prefix, 'subject_', set, '.txt', sep = '')
   
-  
   # Cannot load the data using fread() function.
   # fread() fails to determine the correct number of columns in dataset.
   # So we read the data into a data.frame and then transform it into data.table
@@ -35,7 +33,6 @@ load.dataset <- function (set, features, labels) {
   
   subject.set <- read.table(file.subject)[, 1]
   data$subject <- factor(subject.set)
-  
   
   # convert to data table
   data.table(data)
