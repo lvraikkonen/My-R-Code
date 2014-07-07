@@ -1,0 +1,98 @@
+Reshape2
+========================================================
+
+`reshape2` is an R package written by Hadley Wickham that makes it easy to transform data between wide and long formats.
+
+## Wide or Long Data
+Wide data has a column for each variable. For example, this is wide-format data:
+```{r}
+head(airquality)
+```
+
+
+And this is long-format data:
+```
+##    variable  value
+## 1     ozone 23.615
+## 2     ozone 29.444
+## 3     ozone 59.115
+## 4     ozone 59.962
+## 5      wind 11.623
+## 6      wind 10.267
+## 7      wind  8.942
+## 8      wind  8.794
+## 9      temp 65.548
+## 10     temp 79.100
+## 11     temp 83.903
+## 12     temp 83.968
+```
+
+
+Long-format data has a column for possible variable types and a column for the values of those variables. Long-format data isn’t necessarily only two columns. For example, we might have ozone measurements for each day of the year. In that case, we could have another column for day. In other words, there are different levels of “longness”. The ultimate shape you want to get your data into will depend on what you are doing with it.
+
+For example, `ggplot2` requires long-format data (technically tidy data), `plyr` requires long-format data, and most modelling functions (such as `lm()`, `glm()`, and `gam()`) require long-format data. But people often find it easier to record their data in wide format.
+
+## The reshape2 package
+reshape2 is based around two key functions: `melt` and `cast`:
+
+- `melt` takes wide-format data and melts it into long-format data.
+- `cast` takes long-format data and casts it into wide-format data.
+
+Think of working with metal: if you melt metal, it drips and becomes long. If you cast it into a mould, it becomes wide.
+
+```{r library}
+## install.packages("reshape2")
+library(reshape2)
+```
+
+## Airquality dataset
+```{r sample dataset}
+str(airquality)
+names(airquality) <- tolower(names(airquality))
+head(airquality)
+```
+
+## `melt`:
+Wide to long
+```{r melt}
+aql <- melt(airquality)
+head(aql)
+```
+
+
+ID variables are the variables that identify individual rows of data.
+```{r}
+aql <- melt(airquality, id.vars = c("month", "day"))
+head(aql)
+```
+
+Control the column names in our long-format data
+```{r}
+aql <- melt(airquality, id.vars = c("month", "day"),
+            variable.name = "climate_variable", 
+            value.name = "climate_value")
+head(aql)
+```
+
+## `cast`:
+Long to wide
+
+In reshape2 there are multiple cast functions. Since you will most commonly work with `data.frame` objects, we’ll explore the `dcast` function. (There is also `acast` to return a vector, matrix, or array.)
+
+```{r}
+aql <- melt(airquality, id.vars = c("month", "day"))
+aqw <- dcast(aql, month + day ~ variable)
+head(aqw)
+head(airquality) # original data
+
+```
+
+note: Here, we need to tell dcast that month and day are the ID variables (we want a column for each) and that variable describes the measured variables. Since there is only one remaining column, dcast will figure out that it contains the values themselves. We could explicitly declare this with value.var. (And in some cases it will be necessary to do so.)
+
+
+When you cast your data and there are multiple values per cell, you also need to tell dcast how to aggregate the data. For example, maybe you want to take the mean, or the median, or the sum. Let’s try the last example, but this time we’ll take the mean of the climate values. We’ll also pass the option na.rm = TRUE through the ... argument to remove NA values. (The ... let’s you pass on additional arguments to your fun.aggregate function, here mean.)
+```{r}
+dcast(aql, month ~ variable, fun.aggregate = mean, na.rm = TRUE)
+
+```
+
