@@ -1,0 +1,252 @@
+---
+title: "The fatal impact of tornadoes and economic effects of floods"
+author: "Claus Lv"
+date: "Thursday, July 24, 2014"
+output: html_document
+---
+
+## Synopsis
+Storms and other severe weather events can cause both public health and economic problems for communities and municipalities. Many severe events can result in fatalities, injuries, and property damage, and preventing such outcomes to the extent possible is a key concern.
+
+This project involves exploring the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. This database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.
+
+## Questions
+
+1. Across the United States, which types of events (as indicated in the `EVTYPE` variable) are most harmful with respect to population health?
+
+
+2. Across the United States, which types of events have the greatest economic consequences?
+
+
+```{r library}
+library(ggplot2)
+library(data.table)
+```
+
+
+### Data Processing
+Data are downloaded and imported in stormdata data frame
+```{r process data}
+fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+download.file(fileUrl, destfile = "tempdata.csv.bz2")
+stormdata <- read.csv("tempdata.csv.bz2", stringsAsFactors = FALSE)
+```
+
+7 variables that are relevante for addressing the questions:
+
+- EVTYPE: Name (category) of the weather event.
+- FATALITIES: number of cases with harm to human health
+- INJURIES: number of cases with harm to human health
+- PROPDMG: Coefficient of amount of property damage (USD)
+- PROPDMGEXP: magnitude of property damage (thousands (“K”), millions (“M”)
+- CROPDMG: Coefficient of amount of crop damage (USD)
+- CROPDMGEXP: magnitude of crop damage 
+
+These are extracted for further analysis.
+```{r}
+attributes <- c("STATE", "EVTYPE", "FATALITIES", "INJURIES", "PROPDMG", "PROPDMGEXP", 
+    "CROPDMG", "CROPDMGEXP")
+
+stormdata <- stormdata[, attributes]
+colnames(stormdata) <- c("state", "evtype", "fatalites", "injures", "propdmg", "propdmgexp", 
+    "cropdmg", "cropdmgexp")
+
+str(stormdata)
+```
+
+The documentation points out that similar storm events can be listed using different wording e.g. “coastal flood” and “coastal flooding.” This is confirmed by a cursory analysis of EVTYPE levels.
+```{r}
+head(levels(as.factor(stormdata$evtype)),20)
+```
+
+
+### Data Cleaning
+Create a function to cleanup the eventType
+```{r cleanup eventType}
+deliverEvtUnifiedName <- function(dd) {
+    evtMatcher <- data.frame(reg = c("NADO|FUNNEL|WATERSPOUT", "THUNDER|STORM|WIND", 
+        "HAIL", "FROST|FREEZ|BLIZZARD|WINTER|COLD|LOW TEMP|RECORD LOW|SNOW|ICE", 
+        "HEAT|WARM|RECORD HIGH", "COSTAL STORM", "SUNAMI", "RIP CURRENT", "FLASH FLOOD|FLD|FLOOD", 
+        "RIVER FLOOD|URBAN FLOOD", "TROPICAL STORM|TROPICAL", "HURRICANE", "DROUGHT", 
+        "DUST STORM", "DUST DEVIL", "RAIN", "LIGHTNING"))
+    
+    factorId <- c("Tornado", "Thunderstorm wind", "Hail", "Cold", "Heat", "Costal Storm", 
+        "Sunami", "Rip current", "Flash flood", "River flood", "Tropical Storm", 
+        "Hurricane", "Drought", "Dust storm", "Dust devil", "Rain", "Ligntning")
+    
+    for (i in 1:nrow(evtMatcher)) {
+        indexFit <- grep(evtMatcher[i, "reg"], toupper(dd[, "evtype"]))
+        if (length(indexFit) > 0) {
+            dd[indexFit, "event"] <- factorId[i]
+            
+        }
+    }
+    return(dd)
+}
+
+```
+
+Cleanup `evtype`
+```{r cleanup}
+stormdata$event <- ("-")
+# Give each event an unified id factor
+stormdata <- deliverEvtUnifiedName(stormdata)
+otherIndex <- grep("-", stormdata[, "event"])
+stormdata[otherIndex, "event"] <- "Other"
+stormdata$event <- as.factor(stormdata$event)
+
+# See the event and number of that
+table(stormdata$event)
+
+```
+
+Combine coefficients and magnitudes of property and crop damage to form absolute USD amounts and write it back into CROPDMG and PROPDMG collumns.
+- Fomula I : propdmgValue = propdmg * propdmgexp
+
+- Fomula II : cropdmgValue = cropdmg * cropdmgexp 
+
+
+Create function to caculate the property and crop damage by 'dmg' and 'exp' variable
+```{r calc damage value}
+deliverActualDmgValue <- function(dd) {
+    unit <- data.frame(cha = c("B", "M", "K", "H"), val = c(1e+09, 1e+06, 1000, 
+        100))
+    multi <- c(1e+09, 1e+06, 1000, 100)
+    
+    for (i in 1:nrow(unit)) {
+        # index that match the unit
+        indexCrodFit <- grep(unit[i, "cha"], toupper(dd[, "cropdmgexp"]))
+        
+        if (length(indexCrodFit) > 0) {
+            
+            # Caculate the actual value
+            dd[indexCrodFit, "cropdmgvalue"] <- multi[i] * dd[indexCrodFit, "cropdmg"]
+            
+        }
+        
+        indexProdFit <- grep(unit[i, "cha"], toupper(dd[, "propdmgexp"]))
+        
+        if (length(indexProdFit) > 0) {
+            
+            dd[indexProdFit, "propdmgvalue"] <- multi[i] * dd[indexProdFit, "propdmg"]
+        }
+        
+    }
+    return(dd)
+}
+
+stormdata$cropdmgvalue <- stormdata$cropdmg
+stormdata$propdmgvalue <- stormdata$propdmg
+
+stormdata <- deliverActualDmgValue(stormdata)
+
+
+```
+
+
+Summary Damage Values
+```{r}
+summary(stormdata$propdmgvalue)
+summary(stormdata$cropdmgvalue)
+
+```
+
+
+Damage on Economic and People:
+- Damage on economic : `ecodmgvalue = propdmagevalue + corpdmgvalue `
+- Damage on population health : `peodmg = injures + fatalites`
+```{r add new variables}
+stormdata$ecodmgvalue <- stormdata$cropdmgvalue + stormdata$propdmgvalue
+stormdata$peodmg <- stormdata$injures + stormdata$fatalites
+
+```
+
+
+## Result
+
+Summary Result
+```{r Summary}
+dt <- data.table(stormdata)
+summary <- dt[, list(fatalities = sum(fatalites), injuries = sum(injures), 
+                     people_dmg = sum(fatalites, injures), 
+                     propdmg = sum(propdmgvalue), cropdmg = sum(cropdmgvalue),
+                     eco_dmg = sum(propdmgvalue, cropdmgvalue)), 
+                by = event]
+head(summary,20)
+```
+
+
+### Question 1
+Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
+
+```{r}
+summary[order(people_dmg, decreasing = TRUE)][1:5,]
+
+```
+
+
+Tornados are the most harmful weather events in the United States with respect to population health.
+
+### Question 2
+Across the United States, which types of events have the greatest economic consequences?
+```{r}
+summary[order(eco_dmg, decreasing = TRUE)][1:5,]
+
+```
+
+Flash flood are the most severe events with respect to economic damage.
+
+
+### Draw figures to solve 2 questions
+Data Aggregation
+```{r}
+library(reshape2)
+
+t <- aggregate(cbind(propdmgvalue, cropdmgvalue, injures, fatalites) ~ event, 
+    stormdata, FUN = sum)
+tidy <- melt(t, id.var = "event", variable.name = "variable")
+colnames(tidy) <- c("event", "damagetype", "value")
+
+head(tidy)
+
+```
+
+### For People Health
+```{r}
+damgeOnHealth <- tidy[grep("fatalites|injures", tidy[, "damagetype"]), ]
+
+ggplot(damgeOnHealth, 
+       aes(x = reorder(event, value), y = value, 
+           fill = factor(damagetype, labels = c("Injures", "Fatalites")))) +
+        geom_bar(stat = "identity") + 
+        labs(title = "Top harmful weather event for populaiton health", 
+             x = "Event", y = "Damage on populaiton health (number of people)") + 
+        ## scale_fill_manual(values = c("#F7B388", "#C70000")) +
+        guides(fill = guide_legend(title = "Type of damage")) + 
+        xlab("Weather Event") +
+        coord_flip()
+
+
+```
+
+
+Result: Tornados are the most harmful weather events in the United States with respect to population health.
+
+### For Economic
+```{r}
+damgeOnEconomic <- tidy[grep("cropdmgvalue|propdmgvalue", tidy[, "damagetype"]),]
+
+ggplot(damgeOnEconomic, 
+       aes(x = reorder(event, value), y = value,
+           fill = factor(damagetype, labels = c("Property", "Crop")))) + 
+        geom_bar(stat = "identity") + 
+        labs(title = "Top harmful weather event for economy ",
+             x = "Event", y = "Damage on economic value (US dollors)") + 
+        guides(fill = guide_legend(title = "Type of damage")) + 
+        xlab("Weather Event") + 
+        coord_flip()
+
+
+```
+
+Result: Flash flood are the most severe events with respect to economic damage.
