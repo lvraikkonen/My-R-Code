@@ -102,14 +102,14 @@ table(stormdata$event)
 
 ```
 
-Combine coefficients and magnitudes of property and crop damage to form absolute USD amounts and write it back into CROPDMG and PROPDMG collumns.
+Calculate the damage value for property and crop. Values can be made by `dmg` and `exp` variable:
 
 - Fomula I : propdmgValue = propdmg * propdmgexp
 
 - Fomula II : cropdmgValue = cropdmg * cropdmgexp 
 
 
-Create function to caculate the property and crop damage by 'dmg' and 'exp' variable
+Create function to caculate the property and crop damage by `dmg` and `exp` variable
 ```{r calc damage value}
 deliverActualDmgValue <- function(dd) {
     unit <- data.frame(cha = c("B", "M", "K", "H"), val = c(1e+09, 1e+06, 1000, 
@@ -157,7 +157,7 @@ summary(stormdata$cropdmgvalue)
 
 Damage on Economic and People:
 
-- Damage on economic : `ecodmgvalue = propdmagevalue + corpdmgvalue `
+- Damage on economic : `ecodmgvalue = propdmagevalue + corpdmgvalue`
 
 - Damage on population health : `peodmg = injures + fatalites`
 

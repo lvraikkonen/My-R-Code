@@ -165,12 +165,12 @@ table(stormdata$event)</code></pre>
 ##               569                20            362662             71531 
 ##    Tropical Storm 
 ##               757</code></pre>
-<p>Combine coefficients and magnitudes of property and crop damage to form absolute USD amounts and write it back into CROPDMG and PROPDMG collumns.</p>
+<p>Calculate the damage value for property and crop. Values can be made by <code>dmg</code> and <code>exp</code> variable:</p>
 <ul>
 <li><p>Fomula I : propdmgValue = propdmg * propdmgexp</p></li>
 <li><p>Fomula II : cropdmgValue = cropdmg * cropdmgexp</p></li>
 </ul>
-<p>Create function to caculate the property and crop damage by ‘dmg’ and ‘exp’ variable</p>
+<p>Create function to caculate the property and crop damage by <code>dmg</code> and <code>exp</code> variable</p>
 <pre class="r"><code>deliverActualDmgValue &lt;- function(dd) {
     unit &lt;- data.frame(cha = c(&quot;B&quot;, &quot;M&quot;, &quot;K&quot;, &quot;H&quot;), val = c(1e+09, 1e+06, 1000, 
         100))

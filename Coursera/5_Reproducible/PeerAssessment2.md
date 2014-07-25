@@ -1,14 +1,13 @@
 ---
 title: "The fatal impact of tornadoes and economic effects of floods"
 author: "Claus Lv"
-date: "Thursday, July 24, 2014"
-output: html_document
+date: "Friday, July 25, 2014"
+output:
+  html_document: default
 ---
 
 ## Synopsis
-Storms and other severe weather events can cause both public health and economic problems for communities and municipalities. Many severe events can result in fatalities, injuries, and property damage, and preventing such outcomes to the extent possible is a key concern.
-
-This project involves exploring the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. This database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.
+This report presents an analysis about the impacts of wheather events on the population health and economic. The data is published by the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. We found that the tornado is most harmful for population heath, and the flash flood results in greatest loss on economic value.
 
 ## Questions
 
@@ -24,13 +23,20 @@ library(ggplot2)
 library(data.table)
 ```
 
+```
+## data.table 1.9.2  For help type: help("data.table")
+```
+
 
 ### Data Processing
 Data are downloaded and imported in stormdata data frame
 
 ```r
 fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
-download.file(fileUrl, destfile = "tempdata.csv.bz2")
+if(!file.exists("tempdata.csv.bz2")){
+        download.file(fileUrl, destfile = "tempdata.csv.bz2")
+}
+
 stormdata <- read.csv("tempdata.csv.bz2", stringsAsFactors = FALSE)
 ```
 
@@ -143,13 +149,14 @@ table(stormdata$event)
 ##               757
 ```
 
-Combine coefficients and magnitudes of property and crop damage to form absolute USD amounts and write it back into CROPDMG and PROPDMG collumns.
+Calculate the damage value for property and crop. Values can be made by `dmg` and `exp` variable:
+
 - Fomula I : propdmgValue = propdmg * propdmgexp
 
 - Fomula II : cropdmgValue = cropdmg * cropdmgexp 
 
 
-Create function to caculate the property and crop damage by 'dmg' and 'exp' variable
+Create function to caculate the property and crop damage by `dmg` and `exp` variable
 
 ```r
 deliverActualDmgValue <- function(dd) {
@@ -208,8 +215,11 @@ summary(stormdata$cropdmgvalue)
 
 
 Damage on Economic and People:
-- Damage on economic : `ecodmgvalue = propdmagevalue + corpdmgvalue `
+
+- Damage on economic : `ecodmgvalue = propdmagevalue + corpdmgvalue`
+
 - Damage on population health : `peodmg = injures + fatalites`
+
 
 ```r
 stormdata$ecodmgvalue <- stormdata$cropdmgvalue + stormdata$propdmgvalue
@@ -272,7 +282,7 @@ head(summary,20)
 
 
 ### Question 1
-Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
+Across the United States, which types of events (use the cleaned `event` variable) are most harmful with respect to population health?
 
 
 ```r
@@ -357,7 +367,6 @@ ggplot(damgeOnHealth,
         geom_bar(stat = "identity") + 
         labs(title = "Top harmful weather event for populaiton health", 
              x = "Event", y = "Damage on populaiton health (number of people)") + 
-        ## scale_fill_manual(values = c("#F7B388", "#C70000")) +
         guides(fill = guide_legend(title = "Type of damage")) + 
         xlab("Weather Event") +
         coord_flip()
